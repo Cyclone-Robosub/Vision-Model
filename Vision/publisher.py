@@ -21,24 +21,12 @@ class ObjectDetectionNode(Node):
                 self.get_logger().warn("Failed to read frame.")
                 continue
 
-            # === Use ObjectDetector to get object centers ===
-            objects_centers = self.detector.get_object_center(frame, z=self.fixed_z)
+            # === Use ObjectDetector to get formatted JSON results ===
+            detection_json = self.detector.get_object_center(frame, z=self.fixed_z)
 
             # === Publish result ===
             msg = String()
-            if objects_centers:
-                # Format the detection results as a string
-                detection_data = []
-                for obj in objects_centers:
-                    detection_data.append(
-                        f"Class: {obj['class_name']}, "
-                        f"Confidence: {obj['confidence']:.2f}, "
-                        f"Pixel: ({obj['pixel_coords'][0]}, {obj['pixel_coords'][1]}), "
-                        f"World: ({obj['world_coords'][0]:.2f}, {obj['world_coords'][1]:.2f}, {obj['world_coords'][2]:.2f})"
-                    )
-                msg.data = f"Objects detected: {len(objects_centers)} | " + " | ".join(detection_data)
-            else:
-                msg.data = "No objects detected"
+            msg.data = detection_json
 
             self.publisher_.publish(msg)
 

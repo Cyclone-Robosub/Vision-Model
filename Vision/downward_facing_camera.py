@@ -2,6 +2,7 @@ from ultralytics import YOLO
 
 import cv2 as cv
 import numpy as np
+import json
 
 # Camera calibration parameters (from calibration data)
 K = np.array([[1060.7, 0, 960],
@@ -32,10 +33,11 @@ class ObjectDetector:
         x_n, y_n = undistorted[0][0]
         
         # Step 2: Scale by depth to get real-world coords
-        X = x_n * Z
-        Y = y_n * Z
-        
-        return X, Y, Z
+        x = x_n * Z
+        y = y_n * Z
+
+        return x, y
+
 
     def get_object_center(self, frame, z=50.0):
         results = self.model(frame, conf=0.1, verbose=False, classes=[66]) # use a trained model for keyboard detection
@@ -55,12 +57,18 @@ class ObjectDetector:
                 center_u = (x1 + x2) // 2
                 center_v = (y1 + y2) // 2
 
-                X, Y, Z_coord = ObjectDetector.pixel_to_world_coords(center_u, center_v, self.K, self.D, Z)
+                x, y = ObjectDetector.pixel_to_world_coords(center_u, center_v, self.K, self.D, Z)
                 objects_centers.append({
                     "class_name": class_name,
-                    "confidence": confidence,
-                    "pixel_coords": (center_u, center_v),
-                    "world_coords": (X, Y, Z_coord)
+                    "confidence": float(confidence),
+                    "pixel_coords": {
+                        "x": center_u,
+                        "y": center_v
+                    },
+                    "world_coords": {
+                        "x": float(x),
+                        "y": float(y)
+                    }
                 })
 
                 # Visualization for debugging
@@ -75,4 +83,4 @@ class ObjectDetector:
         cv.imshow("Camera", frame)
         cv.waitKey(1)
                 
-        return objects_centers
+        return json.dumps(objects_centers)
