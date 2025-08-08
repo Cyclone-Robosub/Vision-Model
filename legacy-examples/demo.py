@@ -31,7 +31,7 @@ while cap.isOpened():
     if not ret:
         break
 
-    results = model(frame, conf=0.1, verbose=False, classes=[66]) # use a trained model for keyboard detection
+    results = model(frame, conf=0.5, verbose=False, classes=[15], max_det=1) # use a trained model for keyboard detection
     for result in results:
         boxes = result.boxes.xyxy.cpu().numpy()
         confidences = result.boxes.conf.cpu().numpy()
