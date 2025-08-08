@@ -30,13 +30,6 @@ class ObjectDetectionNode(Node):
 
             self.publisher_.publish(msg)
 
-            # Frame display is handled in get_object_center method
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        self.cap.release()
-        cv2.destroyAllWindows()
-
     def update_depth(self, new_z):
         """Update the fixed depth value for coordinate conversion"""
         self.fixed_z = new_z

@@ -40,30 +40,27 @@ class ObjectDetector:
 
 
     def get_object_center(self, frame, z=50.0):
-        results = self.model(frame, conf=0.1, verbose=False, classes=[66]) # use a trained model for keyboard detection
+        results = self.model(frame, conf=0.5, verbose=False, classes=[67], max_det=1) # use a trained model for keyboard detection
         objects_centers = []
         for result in results:
-            boxes = result.boxes.xyxy.cpu().numpy()
             confidences = result.boxes.conf.cpu().numpy()
             class_ids = result.boxes.cls.cpu().numpy()
+            boxes = result.boxes.xywh.cpu().numpy()
             
             for i, box in enumerate(boxes):
-                x1, y1, x2, y2 = map(int, box[:4])
+                x_pixel, y_pixel, w, h = map(int, box[:4])
                 confidence = confidences[i]
                 class_id = int(class_ids[i])
                 class_name = result.names[class_id]
-                
-                # Calculate center of bounding box
-                center_u = (x1 + x2) // 2
-                center_v = (y1 + y2) // 2
+        
 
-                x, y = ObjectDetector.pixel_to_world_coords(center_u, center_v, self.K, self.D, Z)
+                x, y = ObjectDetector.pixel_to_world_coords(x_pixel, y_pixel, self.K, self.D, z)
                 objects_centers.append({
                     "class_name": class_name,
                     "confidence": float(confidence),
                     "pixel_coords": {
-                        "x": center_u,
-                        "y": center_v
+                        "x": x_pixel,
+                        "y": y_pixel
                     },
                     "world_coords": {
                         "x": float(x),
@@ -72,13 +69,12 @@ class ObjectDetector:
                 })
 
                 # Visualization for debugging
-                cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv.putText(frame, f"{class_name} {confidence:.2f}", 
-                           (x1, y1 - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv.rectangle(frame, (x_pixel - w // 2, y_pixel - h // 2), (x_pixel + w // 2, y_pixel + h // 2), (0, 255, 0), 2)
+                cv.putText(frame, f"{class_name} {confidence:.2f}", (x_pixel - w // 2, y_pixel - h // 2 - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 # Draw line from center of the frame to center of bounding box
-                cv.line(frame, (frame.shape[1]//2, frame.shape[0]//2), (center_u, center_v), (255, 0, 0), 2)
-                cv.circle(frame, (center_u, center_v), 5, (0, 0, 255), -1)
-                
+                cv.line(frame, (frame.shape[1]//2, frame.shape[0]//2), (x_pixel, y_pixel), (255, 0, 0), 2)
+                cv.circle(frame, (x_pixel, y_pixel), 5, (0, 0, 255), -1)
+
         # Optional: show frame for debugging
         cv.imshow("Camera", frame)
         cv.waitKey(1)
