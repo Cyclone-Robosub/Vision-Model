@@ -40,7 +40,7 @@ class ObjectDetector:
 
 
     def get_object_center(self, frame, z=50.0):
-        results = self.model(frame, conf=0.5, verbose=False, classes=[67], max_det=1) # use a trained model for keyboard detection
+        results = self.model(frame, conf=0.5, verbose=False, classes=[63], max_det=1) # use a trained model for keyboard detection
         objects_centers = []
         for result in results:
             confidences = result.boxes.conf.cpu().numpy()
@@ -69,14 +69,14 @@ class ObjectDetector:
                 })
 
                 # Visualization for debugging
-                cv.rectangle(frame, (x_pixel - w // 2, y_pixel - h // 2), (x_pixel + w // 2, y_pixel + h // 2), (0, 255, 0), 2)
-                cv.putText(frame, f"{class_name} {confidence:.2f}", (x_pixel - w // 2, y_pixel - h // 2 - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                # Draw line from center of the frame to center of bounding box
-                cv.line(frame, (frame.shape[1]//2, frame.shape[0]//2), (x_pixel, y_pixel), (255, 0, 0), 2)
-                cv.circle(frame, (x_pixel, y_pixel), 5, (0, 0, 255), -1)
+        #         cv.rectangle(frame, (x_pixel - w // 2, y_pixel - h // 2), (x_pixel + w // 2, y_pixel + h // 2), (0, 255, 0), 2)
+        #         cv.putText(frame, f"{class_name} {confidence:.2f}", (x_pixel - w // 2, y_pixel - h // 2 - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        #         # Draw line from center of the frame to center of bounding box
+        #         cv.line(frame, (frame.shape[1]//2, frame.shape[0]//2), (x_pixel, y_pixel), (255, 0, 0), 2)
+        #         cv.circle(frame, (x_pixel, y_pixel), 5, (0, 0, 255), -1)
 
-        # Optional: show frame for debugging
-        cv.imshow("Camera", frame)
-        cv.waitKey(1)
+        # # Optional: show frame for debugging
+        # cv.imshow("Camera", frame)
+        # cv.waitKey(1)
                 
         return json.dumps(objects_centers)

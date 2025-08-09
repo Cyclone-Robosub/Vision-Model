@@ -11,10 +11,10 @@ class ObjectDetectionNode(Node):
         self.publisher_ = self.create_publisher(String, 'detections', 10)
         self.cap = cv2.VideoCapture(0)  # Adjust if using USB camera index or file
 
-        # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        # self.cap.set(cv2.CAP_PROP_FPS, 30)
+        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.cap.set(cv2.CAP_PROP_FPS, 30)
 
         self.detector = ObjectDetector("yolo11n.pt")  # Initialize ObjectDetector
         self.fixed_z = 50.0  # Fixed depth in cm, can be updated from other sources later
