@@ -1,0 +1,6 @@
+opencv-contrib-python
+ultralytics
+rclpy
+sensor_msgs
+cv_bridge
+numpy

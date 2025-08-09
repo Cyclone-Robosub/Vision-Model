@@ -10,6 +10,12 @@ class ObjectDetectionNode(Node):
         super().__init__('object_detector')
         self.publisher_ = self.create_publisher(String, 'detections', 10)
         self.cap = cv2.VideoCapture(0)  # Adjust if using USB camera index or file
+
+        # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        # self.cap.set(cv2.CAP_PROP_FPS, 30)
+
         self.detector = ObjectDetector("yolo11n.pt")  # Initialize ObjectDetector
         self.fixed_z = 50.0  # Fixed depth in cm, can be updated from other sources later
         self.get_logger().info('Camera opened. Starting detection...')
@@ -17,12 +23,14 @@ class ObjectDetectionNode(Node):
     def run(self):
         while rclpy.ok():
             ret, frame = self.cap.read()
+            print(f"Frame shape: {frame.shape}")
             if not ret:
                 self.get_logger().warn("Failed to read frame.")
                 continue
 
             # === Use ObjectDetector to get formatted JSON results ===
             detection_json = self.detector.get_object_center(frame, z=self.fixed_z)
+            print(f"Detection JSON: {detection_json}")
 
             # === Publish result ===
             msg = String()
