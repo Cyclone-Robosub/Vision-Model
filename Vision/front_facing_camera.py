@@ -5,17 +5,10 @@ import cv2
 
 from camera import ObjectDetector
 
-class DownwardVision(Node):
+class FrontVision(Node):
     def __init__(self):
-        super().__init__('DownwardVision')
-        self.publisher_ = self.create_publisher(String, 'shark_location', 10)
-
-        self.depth_subscriber = self.create_subscription(
-            Float32,
-            'depth',
-            self.depth_callback,
-            10
-        )
+        super().__init__('FrontVision')
+        self.publisher_ = self.create_publisher(String, 'shark_seen', 10)
 
         self.cap = cv2.VideoCapture(0)  # Adjust if using USB camera index or file
 
@@ -24,14 +17,8 @@ class DownwardVision(Node):
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         self.cap.set(cv2.CAP_PROP_FPS, 30)
 
-        self.detector = ObjectDetector("yolo11n.pt")  # Initialize ObjectDetector
-        self.fixed_z = 50.0  # Fixed depth in cm, can be updated from other sources later
+        self.detector = ObjectDetector("yolo11n.pt")  # a different model for front detection
         self.get_logger().info('Camera opened. Starting detection...')
-
-    def depth_callback(self, msg):
-        """Callback for depth subscription"""
-        self.fixed_z = msg.data
-        self.get_logger().info(f'Updated fixed depth to: {self.fixed_z} cm')
 
     def run(self):
         while rclpy.ok():
@@ -42,7 +29,7 @@ class DownwardVision(Node):
                 continue
 
             # === Use ObjectDetector to get formatted JSON results ===
-            detection_json = self.detector.get_object_center(frame, z=self.fixed_z) # if json doesn't work
+            detection_json = self.detector.get_object_names(frame)
             print(f"Detection JSON: {detection_json}")
 
             # === Publish result ===
@@ -54,7 +41,7 @@ class DownwardVision(Node):
 
 def main():
     rclpy.init()
-    node = DownwardVision()
+    node = FrontVision()
     try:
         node.run()
     except KeyboardInterrupt:

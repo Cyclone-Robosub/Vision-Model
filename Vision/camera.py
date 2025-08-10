@@ -4,14 +4,6 @@ import cv2 as cv
 import numpy as np
 import json
 
-# Camera calibration parameters (from calibration data)
-K = np.array([[1060.7, 0, 960],
-              [0, 1060.7, 540],
-              [0, 0, 1]], dtype=np.float32)
-D = np.array([0, 0, 0, 0, 0], dtype=np.float32)  # Assuming minimal distortion
-Z = 50.0  # Fixed depth in cm
-
-
 class ObjectDetector:
 
     # Camera calibration parameters (from calibration data)
@@ -19,7 +11,8 @@ class ObjectDetector:
                 [0, 1060.7, 540],
                 [0, 0, 1]], dtype=np.float32)
     D = np.array([0, 0, 0, 0, 0], dtype=np.float32)  # Assuming minimal distortion
-    
+    Z = 50.0  # Fixed depth in cm
+
     def __init__(self, model_path="yolo11n.pt"):
         self.model = YOLO(model_path)
 
@@ -78,5 +71,15 @@ class ObjectDetector:
         # # Optional: show frame for debugging
         # cv.imshow("Camera", frame)
         # cv.waitKey(1)
-                
+
         return json.dumps(objects_centers)
+    
+    def get_object_names(self, frame):
+        results = self.model(frame, conf=0.5, verbose=False, classes=[63], max_det=2)
+        object_names = []
+        for result in results:
+            class_ids = result.boxes.cls.cpu().numpy()
+            for class_id in class_ids:
+                class_name = result.names[int(class_id)]
+                object_names.append(class_name)
+        return object_names
