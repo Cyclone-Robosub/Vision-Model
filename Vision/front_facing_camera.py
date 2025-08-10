@@ -1,5 +1,5 @@
 from rclpy.node import Node
-from std_msgs.msg import String, Float32
+from std_msgs.msg import String
 import rclpy
 import cv2
 
