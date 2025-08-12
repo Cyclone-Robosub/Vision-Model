@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-VIDEO_SPAN = 5 # seconds
+VIDEO_SPAN = 1 # seconds
 
 # Get device index from command line, default to 0
 if len(sys.argv) > 1:
@@ -31,7 +31,7 @@ while True:
     frame_idx = 0
     writer = cv2.VideoWriter(f'{output_folder}output_{time.strftime("%Y%m%d_%H%M%S")}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (1920, 1080))
 
-    while frame_idx < 100:  # Record 100 frames
+    while frame_idx < 30 * VIDEO_SPAN:  # Record 100 frames
         ret, frame = cap.read()
         if not ret:
             break
@@ -46,6 +46,7 @@ while True:
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
 
-    cap.release()
     writer.release()
     # cv2.destroyAllWindows()
+
+cap.release()
