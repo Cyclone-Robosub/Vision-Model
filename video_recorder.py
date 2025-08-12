@@ -12,6 +12,9 @@ if len(sys.argv) > 1:
     except ValueError:
         print("Invalid device index. Using default (0).")
         device_index = 0
+else:
+    print("Usage: python video_recorder.py [device_index]")
+    exit(1)
 
 cap = cv2.VideoCapture(device_index)  # Adjust if using USB camera index or file
 
