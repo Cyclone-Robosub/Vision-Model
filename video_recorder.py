@@ -1,29 +1,48 @@
 import cv2
 import time
+import os
+import sys
 
-cap = cv2.VideoCapture(0)  # Adjust if using USB camera index or file
+VIDEO_SPAN = 5 # seconds
+
+# Get device index from command line, default to 0
+if len(sys.argv) > 1:
+    try:
+        device_index = int(sys.argv[1])
+    except ValueError:
+        print("Invalid device index. Using default (0).")
+        device_index = 0
+
+cap = cv2.VideoCapture(device_index)  # Adjust if using USB camera index or file
 
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 cap.set(cv2.CAP_PROP_FPS, 30)
 
-writer = cv2.VideoWriter(f'videos/output_{time.strftime("%Y%m%d_%H%M%S")}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (1920, 1080))
+output_folder = 'videos/'
+os.makedirs(output_folder, exist_ok=True)
 
-frame_idx = 0
-while frame_idx < 100:  # Record 100 frames
-    frame_idx = cap.get(cv2.CAP_PROP_POS_FRAMES)
-    ret, frame = cap.read()
-    if not ret:
-        break
+while True:
 
-    writer.write(frame)
+    frame_idx = 0
+    writer = cv2.VideoWriter(f'{output_folder}output_{time.strftime("%Y%m%d_%H%M%S")}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (1920, 1080))
 
-    # Display the frame (optional)
-    # cv2.imshow('Frame', frame)
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
+    while frame_idx < 100:  # Record 100 frames
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-cap.release()
-writer.release()
-# cv2.destroyAllWindows()
+        frame_idx += 1
+        print(f"Recording frame {frame_idx}")
+
+        writer.write(frame)
+
+        # Display the frame (optional)
+        # cv2.imshow('Frame', frame)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
+
+    cap.release()
+    writer.release()
+    # cv2.destroyAllWindows()
