@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-VIDEO_SPAN = 1 # seconds
+VIDEO_SPAN = 5 # seconds
 
 # Get device index from command line, default to 0
 if len(sys.argv) > 1:
