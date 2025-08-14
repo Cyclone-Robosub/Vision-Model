@@ -18,10 +18,19 @@ else:
 
 cap = cv2.VideoCapture(device_index)  # Adjust if using USB camera index or file
 
-cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 cap.set(cv2.CAP_PROP_FPS, 30)
+# cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('H', '2', '6', '4'))
+
+# Verify actual settings
+actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+actual_fps = cap.get(cv2.CAP_PROP_FPS)
+
+print(f"Actual resolution: {actual_width}x{actual_height}")
+print(f"Actual FPS: {actual_fps}")
 
 output_folder = 'videos/'
 os.makedirs(output_folder, exist_ok=True)
@@ -29,7 +38,11 @@ os.makedirs(output_folder, exist_ok=True)
 while True:
 
     frame_idx = 0
-    writer = cv2.VideoWriter(f'{output_folder}output_{time.strftime("%Y%m%d_%H%M%S")}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (1920, 1080))
+    writer = cv2.VideoWriter(
+        f'{output_folder}output_{time.strftime("%Y%m%d_%H%M%S")}.mp4', 
+        cv2.VideoWriter_fourcc(*'mp4v'), 
+        30, 
+        (1920, 1080))
 
     while frame_idx < 30 * VIDEO_SPAN:  # Record 100 frames
         ret, frame = cap.read()
